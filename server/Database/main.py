@@ -1,12 +1,17 @@
-from connect import *
+from connect import connect
+from setup import *
+
+# debug code
+from helper.debug import * 
 
 connection = None
 try:
+
   connection = connect()
   cursor = connection.cursor()
-  cursor.execute("show databases")
-  #cursor.execute("")
-  #cursor.execute("")
-  print(cursor.fetchall())
+  use_database(cursor)
+
+
 finally:
+  show_tables(cursor)
   connection.close()
