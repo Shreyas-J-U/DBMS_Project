@@ -1,9 +1,9 @@
 import pymysql
 from pymysql import Error
-from helper.tables import *
-from helper.employee import *
-from helper.authentication import *
-
+from Database.helper.tables import *
+from Database.helper.employee import *
+from Database.helper.authentication import *
+from Database.connect import connect
 
 
 def setup_database(db_resources):
@@ -59,7 +59,7 @@ def use_database(db_resources):
 def create_owner(db_resources,owner_cred,user_name,password):
 
     
-    # owner_cred = (id,fname,lname,role,email,phone)
+    # owner_cred = (fname,lname,role,email,phone)
 
     connection,cursor = db_resources
     result = insert_employee_cred(db_resources,owner_cred) 
@@ -88,6 +88,22 @@ def login(db_resources,user_name,password):
 
     return verify_password(password,hashed_password)
 
+    
 
 
+def init_database():
+    
+    try:
+        connection = connect()
+        cursor = connection.cursor()
+        db_resources = (connection,cursor)
+  
 
+        if(not use_database(db_resources)):
+            print("failed database creation")
+        return db_resources
+    except:
+        connection.close()
+        return None
+
+  

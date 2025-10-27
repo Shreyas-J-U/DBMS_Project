@@ -1,9 +1,9 @@
 import pymysql
 from pymysql import Error
-from helper.authentication import *
+from Database.helper.authentication import *
 
 
-def insert_employee_cred(db_resources,owner_cred) -> bool :
+def insert_employee_cred(db_resources,owner_cred):
 
     connection,cursor= db_resources
 
