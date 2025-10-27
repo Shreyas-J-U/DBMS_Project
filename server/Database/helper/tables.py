@@ -6,12 +6,12 @@ def create_employee_table(cursor):
     cursor.execute(
         """
             CREATE TABLE employee (
-                employee_id INT PRIMARY KEY,
+                employee_id INT AUTO_INCREMENT PRIMARY KEY,
                 first_name VARCHAR(50) NOT NULL,
                 last_name VARCHAR(50),
                 role enum('owner','manager','employee','supplier') NOT NULL,
                 email VARCHAR(100),
-                phone TINYINT UNSIGNED NOT NULL
+                phone BIGINT NOT NULL
             );
         """
             
@@ -41,7 +41,7 @@ def create_customer_table(cursor):
                 first_name VARCHAR(50) NOT NULL,
                 last_name VARCHAR(50),
                 email VARCHAR(100),
-                phone TINYINT UNSIGNED,
+                phone BIGINT,
                 address VARCHAR(100)
             );
         """
@@ -132,7 +132,7 @@ def create_supplier_table(cursor):
                 supplier_id INT PRIMARY KEY,
                 supplier_name VARCHAR(50) NOT NULL,
                 email VARCHAR(150) NOT NULL,
-                phone TINYINT UNSIGNED NOT NULL
+                phone BIGINT UNSIGNED NOT NULL
             ); 
         """ 
     )
@@ -151,3 +151,18 @@ def create_inventory_transactions(cursor):
             );
         """
     )   
+
+
+def create_passwords_table(cursor):
+
+    cursor.execute(
+
+        """
+            CREATE TABLE passwords (          
+                user_name varchar(100) PRIMARY KEY,
+                employee_id INT UNIQUE NOT NULL,
+                hash_pass VARCHAR(100) NOT NULL,
+                FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+            );
+        """
+    )

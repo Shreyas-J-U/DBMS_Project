@@ -17,6 +17,7 @@ def get_connection_details():
         "port": int(os.getenv("PORT")),
         "user": os.getenv("USER"),
         "write_timeout": int(os.getenv("WRITE_TIMEOUT")),
+        "autocommit" : False
     }
 
 
