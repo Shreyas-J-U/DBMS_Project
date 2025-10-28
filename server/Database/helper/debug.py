@@ -1,5 +1,5 @@
 import pymysql
-from Database.helper.authentication import *
+from database.helper.authentication import *
 def show_tables(cursor):
 
     cursor.execute("Show tables")

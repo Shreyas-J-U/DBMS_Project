@@ -1,6 +1,6 @@
 import pymysql
 from pymysql import Error
-from Database.helper.authentication import *
+from database.helper.authentication import *
 
 
 def insert_employee_cred(db_resources,owner_cred):

@@ -1,9 +1,9 @@
 import pymysql
 from pymysql import Error
-from Database.helper.tables import *
-from Database.helper.employee import *
-from Database.helper.authentication import *
-from Database.connect import connect
+from database.helper.tables import *
+from database.helper.employee import *
+from database.helper.authentication import *
+from database.connect import connect
 
 
 def setup_database(db_resources):
@@ -92,18 +92,15 @@ def login(db_resources,user_name,password):
 
 
 def init_database():
-    
     try:
-        connection = connect()
-        cursor = connection.cursor()
-        db_resources = (connection,cursor)
-  
+        db_resources = connect()
 
         if(not use_database(db_resources)):
             print("failed database creation")
         return db_resources
-    except:
-        connection.close()
+    except Exception as e:
+        print(e)
+        # connection.close()
         return None
 
   
