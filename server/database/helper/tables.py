@@ -162,7 +162,9 @@ def create_passwords_table(cursor):
                 user_name varchar(100) PRIMARY KEY,
                 employee_id INT UNIQUE NOT NULL,
                 hash_pass VARCHAR(100) NOT NULL,
-                FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+                FOREIGN KEY (employee_id) 
+                    REFERENCES employee(employee_id)
+                    ON DELETE CASCADE
             );
         """
     )

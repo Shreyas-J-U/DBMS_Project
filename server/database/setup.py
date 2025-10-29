@@ -71,6 +71,9 @@ def create_owner(db_resources,owner_cred,user_name,password):
         return False
     if(not store_hashed_passwords(db_resources,user_name,result[1],password)):
         print("hashing failed")
+        if(result[0]):
+            remove_employee_cred(db_resources,result[1])
+        
         return False
     return True
 
@@ -118,6 +121,9 @@ def insert_employee(db_resources,owner_cred,user_name,password):
         return False
     if(not store_hashed_passwords(db_resources,user_name,result[1],password)):
         print("hashing failed")
+        if(result[0]):
+            remove_employee_cred(db_resources,result[1])
+
         return False
     return True
 

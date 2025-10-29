@@ -73,3 +73,19 @@ def get_all_unassigned_managers(db_resources):
     except Exception as e:
         print(e)
         return (False,None)
+
+
+def remove_employee_cred(db_resources,employee_id):
+
+    connection,cursor = db_resources
+    try:
+        query = """
+                delete from employee where employee_id = %s;
+                """
+        cursor.execute(query,employee_id)
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        connection.rollback()
+        return False

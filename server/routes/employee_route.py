@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 import database.connect as db_connect
 from database.setup import insert_employee
-from database.helper.employee import get_all_unassigned_managers
+from database.helper.employee import get_all_unassigned_managers,remove_employee_cred
 import pymysql
 
 employee_bp = Blueprint('employee_bp', __name__)
@@ -48,7 +48,47 @@ def insert_employee_endpoint():
     
 
 
+@employee_bp.route('/remove-employee', methods=['POST'])
+def remove_employee_endpoint():
+    
+    try:
+        data = request.get_json()
+
+        employee_id = data.get("employee_id")
+
+        if(not employee_id):
+            return jsonify({"success": False, "error": "Missing required fields"}), 400
+
+        db_resources = db_connect._connection,db_connect._cursor
+        
+        # add insert function here
+        success =remove_employee_cred(db_resources,employee_id)
+        
+        return jsonify({
+            "success": success
+        }), 200 if success else 500
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+
+
+
+
+
+
+
+
 @employee_bp.route('/unassigned-manager', methods=['GET'])
 def get_unassigned_manager_endpoint():
-    pass
-    
+    db_resources = db_connect._connection, db_connect._cursor
+    success, result = get_all_unassigned_managers(db_resources)
+    return jsonify({
+        "success": success,
+        "managers": result
+    }), 200 if success else 500
+
