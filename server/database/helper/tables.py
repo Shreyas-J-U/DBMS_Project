@@ -166,3 +166,22 @@ def create_passwords_table(cursor):
             );
         """
     )
+
+def link_employee_store(cursor):
+
+    cursor.execute(
+        """
+            ALTER TABLE employee
+            ADD COLUMN store_id INT;
+        """
+    )
+
+    cursor.execute(
+
+        """
+            ALTER TABLE employee
+            ADD CONSTRAINT fk_employee_store
+            FOREIGN KEY (store_id)
+            REFERENCES store(store_id);
+        """
+    )

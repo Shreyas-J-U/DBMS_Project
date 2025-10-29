@@ -57,6 +57,7 @@ def run_sql_console(db_resources):
                 continue  # skip empty input
 
             cursor.execute(input_str)
+            
 
             # Try fetching results (works for SELECT and some other queries)
             try:

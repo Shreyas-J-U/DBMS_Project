@@ -26,6 +26,8 @@ def setup_database(db_resources):
         create_order_item_table(cursor)
         create_passwords_table(cursor)
         
+    # Link employee and store table:-
+        link_employee_store(cursor)
     #commit changes    
         connection.commit()
         return True
@@ -59,7 +61,7 @@ def use_database(db_resources):
 def create_owner(db_resources,owner_cred,user_name,password):
 
     
-    # owner_cred = (fname,lname,role,email,phone)
+    # owner_cred = (fname,lname,role,email,phone,store_id)
 
     connection,cursor = db_resources
     result = insert_employee_cred(db_resources,owner_cred) 
@@ -103,4 +105,18 @@ def init_database():
         # connection.close()
         return None
 
-  
+
+
+def insert_employee(db_resources,owner_cred,user_name,password):
+       # employee_cred = (fname,lname,role,email,phone,store_id)
+
+    connection,cursor = db_resources
+    result = insert_employee_cred(db_resources,owner_cred) 
+    if(not result[0]):
+        print("insertion failed")
+        return False
+    if(not store_hashed_passwords(db_resources,user_name,result[1],password)):
+        print("hashing failed")
+        return False
+    return True
+

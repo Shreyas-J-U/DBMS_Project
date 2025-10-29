@@ -1,2 +1,4 @@
 *.env
 /server/database/ca.pem
+__pycache__/
+*.py[cod]

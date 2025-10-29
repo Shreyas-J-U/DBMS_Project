@@ -6,12 +6,22 @@ from database.helper.authentication import *
 def insert_employee_cred(db_resources,owner_cred):
 
     connection,cursor= db_resources
+    
 
     try:
-        query = """
-            INSERT INTO employee (first_name, last_name, role, email, phone)
-            VALUES (%s, %s, %s, %s, %s)
-        """
+
+        if(len(owner_cred) == 5):
+
+            query = """
+                INSERT INTO employee (first_name, last_name, role, email, phone)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+        else:
+            query = """
+                INSERT INTO employee (first_name, last_name, role, email, phone,store_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """
+
         cursor.execute(query, owner_cred)
         connection.commit()
         new_id = cursor.lastrowid
