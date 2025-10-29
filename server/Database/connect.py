@@ -8,7 +8,8 @@ _cursor = None
 def get_connection_details():
     
     load_dotenv()
-    return {
+
+    config = {
         "charset": os.getenv("CHARSET", "utf8mb4"),
         "connect_timeout": int(os.getenv("CONNECT_TIMEOUT")),
         "cursorclass": pymysql.cursors.DictCursor, 
@@ -21,6 +22,15 @@ def get_connection_details():
         "write_timeout": int(os.getenv("WRITE_TIMEOUT")),
         "autocommit" : False
     }
+    ca_path = os.getenv("CA_CERT_PATH")
+    print(ca_path)
+    if ca_path and os.path.exists(ca_path):
+        config["ssl"] = {"ca": ca_path}
+    else:
+        print("not found")
+        print("Warning: CA certificate not found or not specified. SSL verification may fail.")
+    
+    return config    
 
 
 def connect():
