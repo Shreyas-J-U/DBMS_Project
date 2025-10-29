@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 import database.connect as db_connect
 from database.setup import insert_employee
+from database.helper.employee import get_all_unassigned_managers
 import pymysql
 
 employee_bp = Blueprint('employee_bp', __name__)
@@ -44,4 +45,10 @@ def insert_employee_endpoint():
             "success": False,
             "error": str(e)
         }), 500
+    
+
+
+@employee_bp.route('/unassigned-manager', methods=['GET'])
+def get_unassigned_manager_endpoint():
+    pass
     

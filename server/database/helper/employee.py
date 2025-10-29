@@ -52,3 +52,24 @@ def store_hashed_passwords(db_resources,user,id,raw_password) -> bool:
     
         connection.rollback()
         return False
+    
+
+def get_all_unassigned_managers(db_resources):
+
+    connection,cursor = db_resources
+    try:
+        query = """
+            SELECT e.employee_id, e.first_name, e.last_name
+            FROM employee e
+            WHERE e.role = 'manager'
+            AND e.employee_id NOT IN (
+            SELECT s.manager_id FROM store s WHERE s.manager_id IS NOT NULL
+            );
+            """
+        cursor.execute(query)
+        result = cursor.fetchall()
+        return (True,result)
+    
+    except Exception as e:
+        print(e)
+        return (False,None)

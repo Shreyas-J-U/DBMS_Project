@@ -23,10 +23,10 @@ def create_store_table(cursor):
     cursor.execute(
         """
             CREATE TABLE store(
-                store_id INT PRIMARY KEY ,
+                store_id INT AUTO_INCREMENT PRIMARY KEY ,
                 store_name varchar(50) NOT NULL,
                 location POINT NOT NULL,
-                manager_id INT NOT NULL,
+                manager_id INT,
                 FOREIGN KEY (manager_id) REFERENCES employee(employee_id)
             );
         """

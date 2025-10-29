@@ -3,6 +3,7 @@ import pymysql
 from database.setup import *
 from routes.auth_route import auth_bp
 from routes.employee_route import employee_bp
+from routes.store_route import store_bp
 import sys
 
 # --- init ---
@@ -18,6 +19,7 @@ connection,cursor= db_resources
 # --- create a REST endpoint ---
 app.register_blueprint(auth_bp)
 app.register_blueprint(employee_bp)
+app.register_blueprint(store_bp)
 
 
 
