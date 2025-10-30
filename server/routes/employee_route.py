@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
+from datetime import datetime
 import database.connect as db_connect
 from database.setup import insert_employee
 from database.helper.employee import get_all_unassigned_managers,remove_employee_cred
-from database.helper.employee import check_todays_attendance,employee_checkin,get_employee_id
+from database.helper.employee import check_todays_attendance,employee_checkin,get_employee_id,get_total_hours,get_attendance_report
 import pymysql
 
 employee_bp = Blueprint('employee_bp', __name__)
@@ -47,10 +48,6 @@ def insert_employee_endpoint():
             print(f"Employee ID is {employee_id}")
             employee_checkin(db_resources,employee_id)
             print("called employee checkin")
-
-
-
-
 
 
         return jsonify({
@@ -109,3 +106,55 @@ def get_unassigned_manager_endpoint():
         "managers": result
     }), 200 if success else 500
 
+
+@employee_bp.route('/get-total-hours',methods = ['GET'])
+def get_total_hours_endpoint():
+    
+    data = request.get_json()
+    
+    employee_id = data.get("employee_id")
+    work_date = data.get("date")
+
+    if not all([employee_id,work_date]):
+        return jsonify({"success": False, "error": "Missing required fields"}), 400
+    
+    try:
+        work_date_obj = datetime.strptime(work_date, "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({"success": False, "error": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    db_resources = db_connect._connection,db_connect._cursor
+    success,result = get_total_hours(db_resources,employee_id,work_date_obj)
+
+    return jsonify({
+        "success": success,
+        "result": result
+    }), 200 if success else 500
+
+@employee_bp.route('/get-attendance-report',methods = ['GET'])
+def get_attendance_report_endpoint():
+    
+    data = request.get_json()
+    
+    store_id = data.get("store_id")
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+
+
+    if not all([store_id,start_date,end_date]):
+        return jsonify({"success": False, "error": "Missing required fields"}), 400
+    
+    try:
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    except ValueError:
+        return jsonify({"success": False, "error": "Invalid date format, expected YYYY-MM-DD"}), 400
+
+    db_resources = db_connect._connection,db_connect._cursor
+    success,result = get_attendance_report(db_resources,store_id,start_date,end_date)
+
+    return jsonify({
+        "success": success,
+        "result": result
+    }), 200 if success else 500

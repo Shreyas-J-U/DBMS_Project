@@ -32,9 +32,14 @@ def setup_database(db_resources):
 
     # attendance procedures setup :-
         create_check_attendance_func(db_resources)
-        create_attendance_helper(db_resources)
         create_checkin_procedure(db_resources)
         create_checkout_procedure(db_resources)
+        create_attendance_cleanup_trigger(db_resources)
+
+    #attendance functions setup:-
+        create_get_total_hours_func(db_resources)
+        create_attendance_report_procedure(db_resources)
+        create_mark_absent_procedure(db_resources)
 
 
     # Link employee and store table:-

@@ -15,7 +15,6 @@ if(db_resources is None):
     sys.exit(1)
 connection,cursor= db_resources
 
-
 # --- create a REST endpoint ---
 app.register_blueprint(auth_bp)
 app.register_blueprint(employee_bp)

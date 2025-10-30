@@ -3,6 +3,7 @@ from pymysql import Error
 from database.helper.authentication import *
 
 
+
 def insert_employee_cred(db_resources,owner_cred):
 
     connection,cursor= db_resources
@@ -119,33 +120,7 @@ def create_check_attendance_func(db_resources):
         connection.rollback()
         return False
     
-def create_attendance_helper(db_resources):
 
-    connection,cursor = db_resources
-
-    try:
-        query = """
-                CREATE FUNCTION has_attendance_today(emp_id INT)
-                RETURNS BOOLEAN
-                DETERMINISTIC
-                BEGIN
-                    DECLARE count_att INT;
-                    SELECT COUNT(*) INTO count_att
-                    FROM attendance
-                    WHERE employee_id = emp_id AND attendance_date = CURDATE();
-                    
-                    RETURN count_att > 0;
-                END
-                """
-        
-        cursor.execute(query)
-
-        connection.commit()
-        return True
-    except Exception as e:
-        print(e)
-        connection.rollback()
-        return False
     
 
 def create_checkin_procedure(db_resources):
@@ -261,4 +236,131 @@ def get_employee_id(db_resources, username):
     except Exception as e:
         print("Error in get_employee_id:", e)
         return -1
+
+def create_get_total_hours_func(db_resources):
+    connection,cursor = db_resources
+    try:
+        query = """
+            CREATE FUNCTION get_total_hours(emp_id INT, work_date DATE)
+                RETURNS DECIMAL(5,2)
+                DETERMINISTIC
+                BEGIN
+                    DECLARE in_time, out_time DATETIME;
+                    DECLARE total DECIMAL(5,2);
+
+                    SELECT check_in, check_out
+                    INTO in_time, out_time
+                    FROM attendance
+                    WHERE employee_id = emp_id AND attendance_date = work_date;
+
+                    IF out_time IS NOT NULL THEN
+                        SET total = TIMESTAMPDIFF(MINUTE, in_time, out_time) / 60;
+                    ELSE
+                        SET total = 0;
+                    END IF;
+
+                    RETURN total;
+                END;
+                """
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        connection.rollback()
+
+def create_attendance_report_procedure(db_resources):
+
+    connection,cursor = db_resources
+    try:
+        query = """
+            CREATE PROCEDURE generate_attendance_report(
+                IN store_id INT,
+                IN start_date DATE,
+                IN end_date DATE
+            )
+            BEGIN
+                SELECT e.employee_id, e.first_name, e.last_name,
+                    COUNT(a.attendance_id) AS total_days_present
+                FROM employee e
+                JOIN attendance a ON e.employee_id = a.employee_id
+                WHERE e.store_id = store_id
+                AND a.attendance_date BETWEEN start_date AND end_date
+                GROUP BY e.employee_id;
+            END;
+        """
+        cursor.execute(query)
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        connection.rollback()
+        return False
+
+
+def create_mark_absent_procedure(db_resources):
+    connection,cursor=db_resources
+
+    try:
+        query="""
+            CREATE EVENT mark_absent_daily
+                ON SCHEDULE EVERY 1 DAY
+                STARTS TIMESTAMP(CURDATE() + INTERVAL 1 DAY)
+                DO
+                    INSERT INTO attendance (employee_id, attendance_date, status)
+                    SELECT e.employee_id, CURDATE(), 'absent'
+                    FROM employee e
+                    WHERE e.employee_id NOT IN (
+                        SELECT employee_id FROM attendance WHERE attendance_date = CURDATE()
+                    );
+        """
+        cursor.execute(query)
+        return True
+    except Exception as e:
+        print(e)
+        return False
+    
+
+def create_attendance_cleanup_trigger(db_resources):
+
+    connection,cursor= db_resources
+
+    try:
+        query="""
+            CREATE TRIGGER delete_employee_attendance
+                AFTER DELETE ON employee
+                FOR EACH ROW
+                    DELETE FROM attendance WHERE employee_id = OLD.employee_id;
+        """
+        cursor.execute(query)
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+def get_total_hours(db_resources,emp_id,work_date):
+
+    connection,cursor = db_resources
+    try:
+        query = "SELECT get_total_hours(%s ,%s)"
+        cursor.execute(query,(emp_id,work_date))
+        result = cursor.fetchone()
+        return (True,result)
+    except Exception as e:
+        print(e)
+        return (False,-1)
+    
+        
+def get_attendance_report(db_resources,store_id, start_date, end_date):
+    connection,cursor = db_resources
+
+    try:
+        query = "CALL generate_attendance_report(%s,%s,%s);"
+        cursor.execute(query,(store_id,start_date,end_date))
+        result = cursor.fetchall()
+        connection.commit()
+        return (True,result)
+    except Exception as e:
+        print(e)
+        return (False,None)
 
