@@ -97,8 +97,7 @@ def logout_endpoint():
             #handle missing values
         else:
             print(f"Employee ID is {employee_id}")
-            if(not check_todays_attendance(db_resources,employee_id)):
-               success=employee_checkout(db_resources,employee_id)
+            success=employee_checkout(db_resources,employee_id)
 
 
 

@@ -46,6 +46,7 @@ def insert_employee_endpoint():
         else:
             print(f"Employee ID is {employee_id}")
             employee_checkin(db_resources,employee_id)
+            print("called employee checkin")
 
 
 

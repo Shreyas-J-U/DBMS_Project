@@ -97,7 +97,6 @@ def create_check_attendance_func(db_resources):
 
     try:
         query = """
-            DELIMITER $$
 
             CREATE FUNCTION has_attendance_today(emp_id INT)
             RETURNS BOOLEAN
@@ -109,9 +108,7 @@ def create_check_attendance_func(db_resources):
                 WHERE employee_id = emp_id AND attendance_date = CURDATE();
                 
                 RETURN count_att > 0;
-            END $$
-
-            DELIMITER ;
+            END
         """
 
         cursor.execute(query)
@@ -128,8 +125,6 @@ def create_attendance_helper(db_resources):
 
     try:
         query = """
-                DELIMITER $$
-
                 CREATE FUNCTION has_attendance_today(emp_id INT)
                 RETURNS BOOLEAN
                 DETERMINISTIC
@@ -140,9 +135,7 @@ def create_attendance_helper(db_resources):
                     WHERE employee_id = emp_id AND attendance_date = CURDATE();
                     
                     RETURN count_att > 0;
-                END $$
-
-                DELIMITER ;
+                END
                 """
         
         cursor.execute(query)
@@ -161,17 +154,14 @@ def create_checkin_procedure(db_resources):
 
     try:
         query = """
-            DELIMITER $$    
 
             CREATE PROCEDURE mark_checkin(IN emp_id INT)
             BEGIN
                 IF NOT has_attendance_today(emp_id) THEN
-                    INSERT INTO attendance (employee_id, attendance_date, check_in, status, remarks)
-                    VALUES (emp_id, CURDATE(), NOW(), 'present', 'Checked in');
+                    INSERT INTO attendance (employee_id, attendance_date, check_in, status)
+                    VALUES (emp_id, CURDATE(), NOW(), 'present');
                 END IF;
-            END $$
-
-            DELIMITER ;
+            END 
         """
         cursor.execute(query)
         connection.commit()
@@ -186,7 +176,6 @@ def create_checkout_procedure(db_resources):
     connection,cursor = db_resources
     try:
         query = """
-            DELIMITER $$
 
             CREATE PROCEDURE mark_checkout(IN emp_id INT)
             BEGIN
@@ -201,14 +190,12 @@ def create_checkout_procedure(db_resources):
                 IF existing_id IS NOT NULL THEN
                     IF existing_checkout IS NULL THEN
                         UPDATE attendance
-                        SET check_out = NOW(), remarks = 'Checked out'
+                        SET check_out = NOW()
                         WHERE attendance_id = existing_id;
                     END IF;
                 END IF;
-            END $$
-
-            DELIMITER ;
-            
+            END 
+           
             """
     
         cursor.execute(query)
