@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 import database.connect as db_connect
-from database.helper.stores import add_store
+from database.helper.stores import add_store,remove_store
 import pymysql
 
 
@@ -28,6 +28,39 @@ def insert_store_endpoint():
         
         # add insert function here
         success = add_store(db_resources,store_data)
+        
+
+
+        return jsonify({
+            "success": success
+        }), 200 if success else 500
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+    
+
+
+@store_bp.route('/remove-store', methods=['POST'])
+def remove_store_endpoint():
+
+    try:
+        data = request.get_json()
+
+        store_id = data.get("store_id")
+        
+
+
+        if not all([store_id]):
+            return jsonify({"success": False, "error": "Missing required fields"}), 400
+        
+
+        db_resources = db_connect._connection,db_connect._cursor
+        
+        # add insert function here
+        success = remove_store(db_resources,store_id)
         
 
 

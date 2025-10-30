@@ -30,3 +30,16 @@ def add_store(db_resources, store_data):
         return False
 
 
+
+def remove_store(db_resources,store_id):
+    
+    connection,cursor = db_resources
+    try:
+        query = "DELETE FROM store WHERE store_id = %s"
+        cursor.execute(query,store_id)
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        connection.rollback()
+        return False

@@ -207,7 +207,8 @@ def link_employee_store(cursor):
             ALTER TABLE employee
             ADD CONSTRAINT fk_employee_store
             FOREIGN KEY (store_id)
-            REFERENCES store(store_id);
+            REFERENCES store(store_id)
+            ON DELETE SET NULL;
         """
     )
 
