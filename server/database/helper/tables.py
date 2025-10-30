@@ -169,6 +169,29 @@ def create_passwords_table(cursor):
         """
     )
 
+
+def create_attendance_table(cursor):
+    
+    cursor.execute(
+        """
+            CREATE TABLE attendance (
+                attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+                employee_id INT NOT NULL,
+                attendance_date DATE NOT NULL,
+                check_in DATETIME,
+                check_out DATETIME,
+                status ENUM('present', 'absent', 'leave', 'half-day') DEFAULT 'absent',
+                FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
+                UNIQUE (employee_id, attendance_date)
+            );
+
+        """
+    )
+
+
+
+
+
 def link_employee_store(cursor):
 
     cursor.execute(
@@ -187,3 +210,5 @@ def link_employee_store(cursor):
             REFERENCES store(store_id);
         """
     )
+
+

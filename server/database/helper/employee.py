@@ -89,3 +89,189 @@ def remove_employee_cred(db_resources,employee_id):
         print(e)
         connection.rollback()
         return False
+    
+
+def create_check_attendance_func(db_resources):
+
+    connection,cursor=db_resources
+
+    try:
+        query = """
+            DELIMITER $$
+
+            CREATE FUNCTION has_attendance_today(emp_id INT)
+            RETURNS BOOLEAN
+            DETERMINISTIC
+            BEGIN
+                DECLARE count_att INT;
+                SELECT COUNT(*) INTO count_att
+                FROM attendance
+                WHERE employee_id = emp_id AND attendance_date = CURDATE();
+                
+                RETURN count_att > 0;
+            END $$
+
+            DELIMITER ;
+        """
+
+        cursor.execute(query)
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        connection.rollback()
+        return False
+    
+def create_attendance_helper(db_resources):
+
+    connection,cursor = db_resources
+
+    try:
+        query = """
+                DELIMITER $$
+
+                CREATE FUNCTION has_attendance_today(emp_id INT)
+                RETURNS BOOLEAN
+                DETERMINISTIC
+                BEGIN
+                    DECLARE count_att INT;
+                    SELECT COUNT(*) INTO count_att
+                    FROM attendance
+                    WHERE employee_id = emp_id AND attendance_date = CURDATE();
+                    
+                    RETURN count_att > 0;
+                END $$
+
+                DELIMITER ;
+                """
+        
+        cursor.execute(query)
+
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        connection.rollback()
+        return False
+    
+
+def create_checkin_procedure(db_resources):
+
+    connection,cursor = db_resources
+
+    try:
+        query = """
+            DELIMITER $$    
+
+            CREATE PROCEDURE mark_checkin(IN emp_id INT)
+            BEGIN
+                IF NOT has_attendance_today(emp_id) THEN
+                    INSERT INTO attendance (employee_id, attendance_date, check_in, status, remarks)
+                    VALUES (emp_id, CURDATE(), NOW(), 'present', 'Checked in');
+                END IF;
+            END $$
+
+            DELIMITER ;
+        """
+        cursor.execute(query)
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        connection.rollback()
+        return False
+    
+def create_checkout_procedure(db_resources):
+
+    connection,cursor = db_resources
+    try:
+        query = """
+            DELIMITER $$
+
+            CREATE PROCEDURE mark_checkout(IN emp_id INT)
+            BEGIN
+                DECLARE existing_id INT;
+                DECLARE existing_checkout DATETIME;
+
+                SELECT attendance_id, check_out INTO existing_id, existing_checkout
+                FROM attendance
+                WHERE employee_id = emp_id AND attendance_date = CURDATE()
+                LIMIT 1;
+
+                IF existing_id IS NOT NULL THEN
+                    IF existing_checkout IS NULL THEN
+                        UPDATE attendance
+                        SET check_out = NOW(), remarks = 'Checked out'
+                        WHERE attendance_id = existing_id;
+                    END IF;
+                END IF;
+            END $$
+
+            DELIMITER ;
+            
+            """
+    
+        cursor.execute(query)
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        connection.rollback()
+        return False
+    
+        
+def check_todays_attendance(db_resources, employee_id):
+    connection, cursor = db_resources
+    try:
+        query = "SELECT has_attendance_today(%s);"
+        cursor.execute(query, (employee_id,))
+        result = cursor.fetchone()
+        print("Attendance check result:", result)
+        return result[list(result.keys())[0]] if result else False 
+    except Exception as e:
+        print("Error in check_todays_attendance:", e)
+        return False
+
+
+def employee_checkin(db_resources, employee_id):
+    connection, cursor = db_resources
+    try:
+        query = "CALL mark_checkin(%s);"
+        cursor.execute(query, (employee_id,))  
+        connection.commit()  
+        return True
+    except Exception as e:
+        print("Error in employee_checkin:", e)
+        connection.rollback()
+        return False
+
+
+def employee_checkout(db_resources, employee_id):
+    connection, cursor = db_resources
+    try:
+        query = "CALL mark_checkout(%s);"
+        cursor.execute(query, (employee_id,))  
+        connection.commit()  
+        return True
+    except Exception as e:
+        print("Error in employee_checkout:", e)
+        connection.rollback()
+        return False
+
+def get_employee_id(db_resources, username):
+    connection, cursor = db_resources
+    try:
+        query = "SELECT employee_id FROM passwords WHERE user_name = %s"
+        cursor.execute(query, (username,))  
+        result = cursor.fetchone()
+        
+        if result:
+            # if using DictCursor, extract the value from the dict
+            return result["employee_id"]
+        else:
+            return None 
+        
+    except Exception as e:
+        print("Error in get_employee_id:", e)
+        return -1
+

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import database.connect as db_connect
 from database.setup import insert_employee
 from database.helper.employee import get_all_unassigned_managers,remove_employee_cred
+from database.helper.employee import check_todays_attendance,employee_checkin,get_employee_id
 import pymysql
 
 employee_bp = Blueprint('employee_bp', __name__)
@@ -33,7 +34,22 @@ def insert_employee_endpoint():
         
         # add insert function here
         success = insert_employee(db_resources,employee_cred,user_name,password)
-        
+
+        #checkin for that day
+        employee_id = get_employee_id(db_resources,user_name)
+        if(employee_id == -1):
+            print("Database error")
+            #handle error
+        elif(employee_id is None):
+            print("Username not found")
+            #handle missing values
+        else:
+            print(f"Employee ID is {employee_id}")
+            employee_checkin(db_resources,employee_id)
+
+
+
+
 
 
         return jsonify({

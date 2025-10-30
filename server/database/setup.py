@@ -26,7 +26,17 @@ def setup_database(db_resources):
         create_payment_table(cursor)
         create_order_item_table(cursor)
         create_passwords_table(cursor)
+        create_attendance_table(cursor)
         
+
+
+    # attendance procedures setup :-
+        create_check_attendance_func(db_resources)
+        create_attendance_helper(db_resources)
+        create_checkin_procedure(db_resources)
+        create_checkout_procedure(db_resources)
+
+
     # Link employee and store table:-
         link_employee_store(cursor)
     #commit changes    
